@@ -3,15 +3,29 @@ import { AnimatePresence } from "framer-motion";
 import HeroBanner from "@/components/HeroBanner";
 import RecommendationCard from "@/components/RecommendationCard";
 import AddRecommendationForm from "@/components/AddRecommendationForm";
-import { Route, loadRoutes, saveRoutes } from "@/lib/bucketListData";
+import LoginScreen from "@/components/LoginScreen";
+import VoteAlert from "@/components/VoteAlert";
+import { Route, loadRoutes, saveRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
 
 const Index = () => {
   const [routes, setRoutes] = useState<Route[]>(loadRoutes);
   const [activeTab, setActiveTab] = useState(0);
+  const [user, setUser] = useState<string | null>(getCurrentUser);
+  const [voteAlert, setVoteAlert] = useState<string | null>(null);
 
   useEffect(() => {
     saveRoutes(routes);
   }, [routes]);
+
+  const handleLogin = (name: string) => {
+    setCurrentUser(name);
+    setUser(name);
+  };
+
+  const handleLogout = () => {
+    clearCurrentUser();
+    setUser(null);
+  };
 
   const update = useCallback((fn: (draft: Route[]) => void) => {
     setRoutes((prev) => {
@@ -21,43 +35,58 @@ const Index = () => {
     });
   }, []);
 
+  if (!user) {
+    return <LoginScreen onLogin={handleLogin} />;
+  }
+
   const activeRoute = routes[activeTab];
   const totalVisited = routes.reduce((s, r) => s + r.items.filter((i) => i.visited).length, 0);
   const totalItems = routes.reduce((s, r) => s + r.items.length, 0);
 
   return (
     <div className="min-h-screen bg-background">
+      <VoteAlert message={voteAlert} onDismiss={() => setVoteAlert(null)} />
       <HeroBanner />
 
-      {/* Stats bar */}
+      {/* User bar */}
       <div className="max-w-4xl mx-auto px-4 -mt-6 relative z-10">
-        <div className="card-caribbean p-4 flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div className="text-center">
-              <p className="text-2xl font-display font-bold text-primary">{totalItems}</p>
-              <p className="text-xs text-muted-foreground">Lugares</p>
-            </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
-              <p className="text-2xl font-display font-bold text-accent">{totalVisited}</p>
-              <p className="text-xs text-muted-foreground">Visitados</p>
-            </div>
-            <div className="w-px h-8 bg-border" />
-            <div className="text-center">
-              <p className="text-2xl font-display font-bold text-secondary">{totalItems - totalVisited}</p>
-              <p className="text-xs text-muted-foreground">Pendientes</p>
-            </div>
-          </div>
-          <div className="hidden sm:block">
-            <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
-              <div
-                className="h-full bg-accent rounded-full transition-all duration-500"
-                style={{ width: totalItems ? `${(totalVisited / totalItems) * 100}%` : "0%" }}
-              />
-            </div>
-            <p className="text-[10px] text-muted-foreground mt-1 text-right">
-              {totalItems ? Math.round((totalVisited / totalItems) * 100) : 0}% completado
+        <div className="card-caribbean p-4">
+          <div className="flex items-center justify-between mb-3">
+            <p className="text-sm font-body">
+              Hola, <span className="font-bold text-primary">{user}</span> 👋
             </p>
+            <button onClick={handleLogout} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+              Cambiar usuario
+            </button>
+          </div>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-4">
+              <div className="text-center">
+                <p className="text-2xl font-display font-bold text-primary">{totalItems}</p>
+                <p className="text-xs text-muted-foreground">Lugares</p>
+              </div>
+              <div className="w-px h-8 bg-border" />
+              <div className="text-center">
+                <p className="text-2xl font-display font-bold text-accent">{totalVisited}</p>
+                <p className="text-xs text-muted-foreground">Visitados</p>
+              </div>
+              <div className="w-px h-8 bg-border" />
+              <div className="text-center">
+                <p className="text-2xl font-display font-bold text-secondary">{totalItems - totalVisited}</p>
+                <p className="text-xs text-muted-foreground">Pendientes</p>
+              </div>
+            </div>
+            <div className="hidden sm:block">
+              <div className="w-32 h-2 bg-muted rounded-full overflow-hidden">
+                <div
+                  className="h-full bg-accent rounded-full transition-all duration-500"
+                  style={{ width: totalItems ? `${(totalVisited / totalItems) * 100}%` : "0%" }}
+                />
+              </div>
+              <p className="text-[10px] text-muted-foreground mt-1 text-right">
+                {totalItems ? Math.round((totalVisited / totalItems) * 100) : 0}% completado
+              </p>
+            </div>
           </div>
         </div>
       </div>
@@ -85,6 +114,7 @@ const Index = () => {
             <RecommendationCard
               key={item.id}
               item={item}
+              currentUser={user}
               onToggleVisited={() =>
                 update((d) => {
                   const it = d[activeTab].items.find((x) => x.id === item.id);
@@ -104,6 +134,7 @@ const Index = () => {
                     it.votes = it.votes.filter((v) => v !== friend);
                   } else {
                     it.votes.push(friend);
+                    setVoteAlert(`${user} votó por "${item.name}" 🎉`);
                   }
                 })
               }
@@ -113,18 +144,25 @@ const Index = () => {
                   if (it) it.comments.push({ author, text });
                 })
               }
+              onUpdatePrice={(price) =>
+                update((d) => {
+                  const it = d[activeTab].items.find((x) => x.id === item.id);
+                  if (it) it.price = price;
+                })
+              }
             />
           ))}
         </AnimatePresence>
 
         <AddRecommendationForm
-          onAdd={(name, description, directions) =>
+          onAdd={(name, description, directions, price) =>
             update((d) => {
               d[activeTab].items.push({
                 id: Math.random().toString(36).slice(2, 10),
                 name,
                 description,
                 directions,
+                price,
                 visited: false,
                 votes: [],
                 comments: [],
@@ -137,7 +175,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-ocean-deep text-card/80 text-center py-8 mt-12">
         <p className="font-display text-lg text-card">
-          Hecho con ❤️ para Juan Carlos, Matilde, Ruth y Armando
+          Hecho con ❤️ para Juan Carlos, Grisel, Ruth y Armando
         </p>
         <p className="text-sm mt-1 text-card/60">
           Próximo viaje: Septiembre 2025 🌴
