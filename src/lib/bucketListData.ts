@@ -3,8 +3,9 @@ export interface Recommendation {
   name: string;
   description: string;
   directions: string;
+  price?: string;
   visited: boolean;
-  votes: string[]; // names of voters
+  votes: string[];
   comments: { author: string; text: string }[];
 }
 
@@ -15,7 +16,7 @@ export interface Route {
   items: Recommendation[];
 }
 
-export const FRIENDS = ["Juan Carlos", "Matilde", "Ruth", "Armando"];
+export const FRIENDS = ["Juan Carlos", "Grisel", "Ruth", "Armando"];
 
 const uid = () => Math.random().toString(36).slice(2, 10);
 
@@ -64,9 +65,9 @@ export const DEFAULT_DATA: Route[] = [
         name: "Playa San Rafael",
         description: "Playa de agua dulce y salada en Barahona. Paisaje único.",
         directions: "Carretera Barahona-Enriquillo, km 17 al sur de Barahona.",
-        visited: true,
-        votes: ["Ruth", "Armando"],
-        comments: [{ author: "Ruth", text: "¡Increíble! El agua estaba perfecta." }],
+        visited: false,
+        votes: [],
+        comments: [],
       },
       {
         id: uid(),
@@ -83,7 +84,7 @@ export const DEFAULT_DATA: Route[] = [
         description: "El lago más grande del Caribe. Cocodrilos americanos, iguanas y flamencos.",
         directions: "Desde Barahona tomar carretera hacia Jimaní, entrada por La Descubierta.",
         visited: false,
-        votes: ["Juan Carlos"],
+        votes: [],
         comments: [],
       },
     ],
@@ -99,8 +100,8 @@ export const DEFAULT_DATA: Route[] = [
         description: "Aventura acuática recomendada por William Ramos. ¡Imperdible!",
         directions: "Autopista Duarte, Puerto Plata. Señalización desde la carretera principal.",
         visited: false,
-        votes: ["Armando", "Matilde"],
-        comments: [{ author: "Armando", text: "William Ramos dice que es lo mejor de RD." }],
+        votes: [],
+        comments: [],
       },
       {
         id: uid(),
@@ -117,7 +118,7 @@ export const DEFAULT_DATA: Route[] = [
         description: "Cascada de 40 metros en Samaná. Se llega a caballo o caminando.",
         directions: "Desde Las Terrenas tomar carretera a El Limón, 20 min.",
         visited: false,
-        votes: ["Ruth"],
+        votes: [],
         comments: [],
       },
     ],
@@ -133,8 +134,8 @@ export const DEFAULT_DATA: Route[] = [
         description: "Paraíso terrenal. Excursión en catamarán desde Bayahíbe.",
         directions: "Salida desde el muelle de Bayahíbe, La Romana.",
         visited: false,
-        votes: ["Juan Carlos", "Matilde", "Ruth"],
-        comments: [{ author: "Matilde", text: "¡Siempre quise ir! Prioridad #1." }],
+        votes: [],
+        comments: [],
       },
       {
         id: uid(),
@@ -151,8 +152,8 @@ export const DEFAULT_DATA: Route[] = [
         description: "Playa virgen donde los pescadores venden langosta recién sacada del mar.",
         directions: "Punta Cana, tomar desvío hacia Macao por la carretera principal.",
         visited: false,
-        votes: ["Armando"],
-        comments: [{ author: "Armando", text: "Andariego se comió una langosta gigante ahí." }],
+        votes: [],
+        comments: [],
       },
     ],
   },
@@ -174,4 +175,18 @@ export function loadRoutes(): Route[] {
 
 export function saveRoutes(routes: Route[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(routes));
+}
+
+const USER_KEY = "rdx4-current-user";
+
+export function getCurrentUser(): string | null {
+  return localStorage.getItem(USER_KEY);
+}
+
+export function setCurrentUser(name: string) {
+  localStorage.setItem(USER_KEY, name);
+}
+
+export function clearCurrentUser() {
+  localStorage.removeItem(USER_KEY);
 }
