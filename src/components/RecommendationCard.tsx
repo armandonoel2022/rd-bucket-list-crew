@@ -4,22 +4,30 @@ import { motion } from "framer-motion";
 
 interface Props {
   item: Recommendation;
+  currentUser: string;
   onToggleVisited: () => void;
   onDelete: () => void;
   onVote: (friend: string) => void;
   onAddComment: (author: string, text: string) => void;
+  onUpdatePrice: (price: string) => void;
 }
 
-const RecommendationCard = ({ item, onToggleVisited, onDelete, onVote, onAddComment }: Props) => {
+const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVote, onAddComment, onUpdatePrice }: Props) => {
   const [showComments, setShowComments] = useState(false);
-  const [commentAuthor, setCommentAuthor] = useState(FRIENDS[0]);
   const [commentText, setCommentText] = useState("");
+  const [editingPrice, setEditingPrice] = useState(false);
+  const [priceValue, setPriceValue] = useState(item.price || "");
 
   const handleSubmitComment = () => {
     if (commentText.trim()) {
-      onAddComment(commentAuthor, commentText.trim());
+      onAddComment(currentUser, commentText.trim());
       setCommentText("");
     }
+  };
+
+  const handleSavePrice = () => {
+    onUpdatePrice(priceValue.trim());
+    setEditingPrice(false);
   };
 
   return (
@@ -42,6 +50,32 @@ const RecommendationCard = ({ item, onToggleVisited, onDelete, onVote, onAddComm
           </div>
           <p className="text-muted-foreground text-sm mt-1">{item.description}</p>
           <p className="text-muted-foreground/70 text-xs mt-1 italic">📍 {item.directions}</p>
+          
+          {/* Price */}
+          <div className="mt-2 flex items-center gap-2">
+            <span className="text-xs font-semibold text-muted-foreground">💰 Presupuesto:</span>
+            {editingPrice ? (
+              <div className="flex items-center gap-1">
+                <input
+                  value={priceValue}
+                  onChange={(e) => setPriceValue(e.target.value)}
+                  onKeyDown={(e) => e.key === "Enter" && handleSavePrice()}
+                  placeholder="Ej: RD$500 por plato"
+                  className="bg-card border border-border rounded-lg px-2 py-1 text-xs font-body min-w-0 w-40"
+                  autoFocus
+                />
+                <button onClick={handleSavePrice} className="text-xs text-primary font-bold">✓</button>
+                <button onClick={() => setEditingPrice(false)} className="text-xs text-muted-foreground">✗</button>
+              </div>
+            ) : (
+              <button
+                onClick={() => { setPriceValue(item.price || ""); setEditingPrice(true); }}
+                className="text-xs text-primary hover:underline"
+              >
+                {item.price || "Agregar precio"}
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
           <button onClick={onToggleVisited} className="btn-turquoise text-xs !px-3 !py-1.5">
@@ -65,7 +99,7 @@ const RecommendationCard = ({ item, onToggleVisited, onDelete, onVote, onAddComm
               onClick={() => onVote(f)}
               className={`vote-chip ${item.votes.includes(f) ? "voted" : ""}`}
             >
-              {item.votes.includes(f) ? "✓" : "+"} {f.split(" ")[0]}
+              {item.votes.includes(f) ? "✓" : "+"} {f}
             </button>
           ))}
         </div>
@@ -88,15 +122,9 @@ const RecommendationCard = ({ item, onToggleVisited, onDelete, onVote, onAddComm
               </div>
             ))}
             <div className="flex gap-2 mt-2">
-              <select
-                value={commentAuthor}
-                onChange={(e) => setCommentAuthor(e.target.value)}
-                className="bg-card border border-border rounded-lg px-2 py-1.5 text-xs font-body"
-              >
-                {FRIENDS.map((f) => (
-                  <option key={f} value={f}>{f.split(" ")[0]}</option>
-                ))}
-              </select>
+              <span className="bg-primary/10 text-primary rounded-lg px-2 py-1.5 text-xs font-bold shrink-0">
+                {currentUser}
+              </span>
               <input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}

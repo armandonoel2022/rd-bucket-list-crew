@@ -1,22 +1,24 @@
 import { useState } from "react";
 
 interface Props {
-  onAdd: (name: string, description: string, directions: string) => void;
+  onAdd: (name: string, description: string, directions: string, price?: string) => void;
 }
 
 const AddRecommendationForm = ({ onAdd }: Props) => {
   const [name, setName] = useState("");
   const [description, setDescription] = useState("");
   const [directions, setDirections] = useState("");
+  const [price, setPrice] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim()) {
-      onAdd(name.trim(), description.trim(), directions.trim());
+      onAdd(name.trim(), description.trim(), directions.trim(), price.trim() || undefined);
       setName("");
       setDescription("");
       setDirections("");
+      setPrice("");
       setOpen(false);
     }
   };
@@ -49,6 +51,12 @@ const AddRecommendationForm = ({ onAdd }: Props) => {
         value={directions}
         onChange={(e) => setDirections(e.target.value)}
         placeholder="Ruta / indicaciones (ej: Autopista Duarte, km 45)"
+        className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm font-body placeholder:text-muted-foreground/50"
+      />
+      <input
+        value={price}
+        onChange={(e) => setPrice(e.target.value)}
+        placeholder="💰 Presupuesto / precios (ej: RD$500 por plato)"
         className="w-full bg-card border border-border rounded-lg px-3 py-2 text-sm font-body placeholder:text-muted-foreground/50"
       />
       <div className="flex gap-2">
