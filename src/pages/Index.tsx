@@ -175,10 +175,7 @@ const Index = () => {
       {/* Footer */}
       <footer className="bg-ocean-deep text-card/80 text-center py-8 mt-12">
         <p className="font-display text-lg text-card">
-          Hecho con ❤️ para Juan Carlos, Grisel, Ruth y Armando
-        </p>
-        <p className="text-sm mt-1 text-card/60">
-          Próximo viaje: Septiembre 2025 🌴
+          Próximo viaje: 2026 🌴
         </p>
       </footer>
     </div>
