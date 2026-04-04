@@ -5,6 +5,9 @@ import RecommendationCard from "@/components/RecommendationCard";
 import AddRecommendationForm from "@/components/AddRecommendationForm";
 import LoginScreen from "@/components/LoginScreen";
 import VoteAlert from "@/components/VoteAlert";
+import RouteMap from "@/components/RouteMap";
+import RouteStops from "@/components/RouteStops";
+import Dashboard from "@/components/Dashboard";
 import { Route, loadRoutes, saveRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
 
 const Index = () => {
@@ -12,6 +15,7 @@ const Index = () => {
   const [activeTab, setActiveTab] = useState(0);
   const [user, setUser] = useState<string | null>(getCurrentUser);
   const [voteAlert, setVoteAlert] = useState<string | null>(null);
+  const [showDashboard, setShowDashboard] = useState(false);
 
   useEffect(() => {
     saveRoutes(routes);
@@ -42,6 +46,7 @@ const Index = () => {
   const activeRoute = routes[activeTab];
   const totalVisited = routes.reduce((s, r) => s + r.items.filter((i) => i.visited).length, 0);
   const totalItems = routes.reduce((s, r) => s + r.items.length, 0);
+  const isMetro = activeRoute.id === "metro";
 
   return (
     <div className="min-h-screen bg-background">
@@ -55,9 +60,17 @@ const Index = () => {
             <p className="text-sm font-body">
               Hola, <span className="font-bold text-primary">{user}</span> 👋
             </p>
-            <button onClick={handleLogout} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
-              Cambiar usuario
-            </button>
+            <div className="flex gap-3 items-center">
+              <button
+                onClick={() => setShowDashboard(!showDashboard)}
+                className={`text-xs font-bold transition-colors ${showDashboard ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                📊 Dashboard
+              </button>
+              <button onClick={handleLogout} className="text-xs text-muted-foreground hover:text-foreground transition-colors">
+                Cambiar usuario
+              </button>
+            </div>
           </div>
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
@@ -91,6 +104,13 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Dashboard */}
+      {showDashboard && (
+        <div className="max-w-4xl mx-auto px-4 mt-6">
+          <Dashboard routes={routes} />
+        </div>
+      )}
+
       {/* Tabs */}
       <div className="max-w-4xl mx-auto px-4 mt-6">
         <div className="flex overflow-x-auto gap-1 pb-1 scrollbar-hide">
@@ -107,8 +127,27 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Starting point indicator for non-metro */}
+      {!isMetro && (
+        <div className="max-w-4xl mx-auto px-4 mt-4">
+          <div className="bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center gap-2">
+            <span className="text-lg">🏁</span>
+            <p className="text-sm font-body">
+              <span className="font-bold text-primary">Punto de partida:</span>{" "}
+              <span className="text-foreground">Santo Domingo (Zona Metropolitana)</span>
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+        {/* Map for non-metro routes */}
+        {!isMetro && <RouteMap route={activeRoute} />}
+
+        {/* Fuel & rest stops for non-metro */}
+        {!isMetro && <RouteStops fuelStops={activeRoute.fuelStops} restStops={activeRoute.restStops} />}
+
         <AnimatePresence mode="popLayout">
           {activeRoute.items.map((item) => (
             <RecommendationCard
@@ -150,22 +189,29 @@ const Index = () => {
                   if (it) it.price = price;
                 })
               }
+              onUpdatePhoto={(url) =>
+                update((d) => {
+                  const it = d[activeTab].items.find((x) => x.id === item.id);
+                  if (it) it.photoUrl = url;
+                })
+              }
+              onUpdateLocation={(lat, lng) =>
+                update((d) => {
+                  const it = d[activeTab].items.find((x) => x.id === item.id);
+                  if (it) { it.lat = lat; it.lng = lng; }
+                })
+              }
             />
           ))}
         </AnimatePresence>
 
         <AddRecommendationForm
-          onAdd={(name, description, directions, price) =>
+          onAdd={(name, description, directions, price, photoUrl, lat, lng) =>
             update((d) => {
               d[activeTab].items.push({
                 id: Math.random().toString(36).slice(2, 10),
-                name,
-                description,
-                directions,
-                price,
-                visited: false,
-                votes: [],
-                comments: [],
+                name, description, directions, price, photoUrl, lat, lng,
+                visited: false, votes: [], comments: [],
               });
             })
           }
