@@ -301,7 +301,7 @@ export function loadRoutes(): Route[] {
       const savedIds = new Set(migrated.map((r) => r.id));
       DEFAULT_DATA.forEach((def) => {
         if (!savedIds.has(def.id)) {
-          migrated.push(def);
+          migrated.push(JSON.parse(JSON.stringify(def)));
         }
       });
       return migrated;
