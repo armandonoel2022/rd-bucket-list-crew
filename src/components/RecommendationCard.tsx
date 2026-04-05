@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Recommendation, FRIENDS } from "@/lib/bucketListData";
+import { FRIEND_AVATARS } from "@/lib/friendAvatars";
 import { motion } from "framer-motion";
 
 function openGoogleMaps(lat: number, lng: number) {
@@ -20,9 +21,10 @@ interface Props {
   onUpdatePrice: (price: string) => void;
   onUpdatePhoto: (url: string) => void;
   onUpdateLocation: (lat: number, lng: number) => void;
+  onUpdateSocial: (field: "facebook" | "instagram" | "menuUrl", value: string) => void;
 }
 
-const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVote, onAddComment, onUpdatePrice, onUpdatePhoto, onUpdateLocation }: Props) => {
+const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVote, onAddComment, onUpdatePrice, onUpdatePhoto, onUpdateLocation, onUpdateSocial }: Props) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editingPrice, setEditingPrice] = useState(false);
@@ -32,6 +34,8 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
   const [editingLocation, setEditingLocation] = useState(false);
   const [latValue, setLatValue] = useState(item.lat?.toString() || "");
   const [lngValue, setLngValue] = useState(item.lng?.toString() || "");
+  const [editingSocial, setEditingSocial] = useState<"facebook" | "instagram" | "menuUrl" | null>(null);
+  const [socialValue, setSocialValue] = useState("");
 
   const handleSubmitComment = () => {
     if (commentText.trim()) {
@@ -58,6 +62,46 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
     }
     setEditingLocation(false);
   };
+
+  const handleSaveSocial = (field: "facebook" | "instagram" | "menuUrl") => {
+    onUpdateSocial(field, socialValue.trim());
+    setEditingSocial(null);
+    setSocialValue("");
+  };
+
+  const socialField = (label: string, icon: string, field: "facebook" | "instagram" | "menuUrl", placeholder: string) => (
+    <div className="mt-1 flex items-center gap-2">
+      <span className="text-xs font-semibold text-muted-foreground">{icon} {label}:</span>
+      {editingSocial === field ? (
+        <div className="flex items-center gap-1">
+          <input
+            value={socialValue}
+            onChange={(e) => setSocialValue(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && handleSaveSocial(field)}
+            placeholder={placeholder}
+            className="bg-card border border-border rounded-lg px-2 py-1 text-xs font-body min-w-0 w-48"
+            autoFocus
+          />
+          <button onClick={() => handleSaveSocial(field)} className="text-xs text-primary font-bold">✓</button>
+          <button onClick={() => setEditingSocial(null)} className="text-xs text-muted-foreground">✗</button>
+        </div>
+      ) : item[field] ? (
+        <div className="flex items-center gap-1">
+          <a href={item[field]} target="_blank" rel="noopener noreferrer" className="text-xs text-primary hover:underline truncate max-w-[150px]">
+            {field === "menuUrl" ? "Ver menú" : item[field]!.replace(/https?:\/\/(www\.)?/, "").slice(0, 30)}
+          </a>
+          <button onClick={() => { setSocialValue(item[field] || ""); setEditingSocial(field); }} className="text-xs text-muted-foreground hover:text-foreground">✏️</button>
+        </div>
+      ) : (
+        <button
+          onClick={() => { setSocialValue(""); setEditingSocial(field); }}
+          className="text-xs text-primary hover:underline"
+        >
+          Agregar
+        </button>
+      )}
+    </div>
+  );
 
   return (
     <motion.div
@@ -170,6 +214,11 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
               </button>
             )}
           </div>
+
+          {/* Social & Menu */}
+          {socialField("Facebook", "📘", "facebook", "https://facebook.com/...")}
+          {socialField("Instagram", "📷", "instagram", "https://instagram.com/...")}
+          {socialField("Menú", "📋", "menuUrl", "URL del menú (imagen o PDF)")}
         </div>
         <div className="flex flex-col gap-2 shrink-0">
           <button onClick={onToggleVisited} className="btn-turquoise text-xs !px-3 !py-1.5">
@@ -181,7 +230,7 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
         </div>
       </div>
 
-      {/* Votes */}
+      {/* Votes with avatars */}
       <div className="mt-4">
         <p className="text-xs font-semibold text-muted-foreground mb-2">
           🗳️ Votar para ir ({item.votes.length}/{FRIENDS.length}):
@@ -191,8 +240,9 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
             <button
               key={f}
               onClick={() => onVote(f)}
-              className={`vote-chip ${item.votes.includes(f) ? "voted" : ""}`}
+              className={`vote-chip ${item.votes.includes(f) ? "voted" : ""} flex items-center gap-1.5`}
             >
+              <img src={FRIEND_AVATARS[f]} alt={f} className="w-5 h-5 rounded-full object-cover" />
               {item.votes.includes(f) ? "✓" : "+"} {f}
             </button>
           ))}
@@ -210,15 +260,16 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
         {showComments && (
           <div className="mt-2 space-y-2">
             {item.comments.map((c, i) => (
-              <div key={i} className="bg-muted rounded-lg px-3 py-2 text-sm">
-                <span className="font-bold text-primary">{c.author}:</span>{" "}
-                <span className="text-foreground">{c.text}</span>
+              <div key={i} className="bg-muted rounded-lg px-3 py-2 text-sm flex items-start gap-2">
+                <img src={FRIEND_AVATARS[c.author]} alt={c.author} className="w-6 h-6 rounded-full object-cover shrink-0 mt-0.5" />
+                <div>
+                  <span className="font-bold text-primary">{c.author}:</span>{" "}
+                  <span className="text-foreground">{c.text}</span>
+                </div>
               </div>
             ))}
             <div className="flex gap-2 mt-2">
-              <span className="bg-primary/10 text-primary rounded-lg px-2 py-1.5 text-xs font-bold shrink-0">
-                {currentUser}
-              </span>
+              <img src={FRIEND_AVATARS[currentUser]} alt={currentUser} className="w-8 h-8 rounded-full object-cover shrink-0" />
               <input
                 value={commentText}
                 onChange={(e) => setCommentText(e.target.value)}
