@@ -186,16 +186,23 @@ const Index = () => {
                   if (it) { it.lat = lat; it.lng = lng; }
                 })
               }
+              onUpdateSocial={(field, value) =>
+                update((d) => {
+                  const it = d[activeTab].items.find((x) => x.id === item.id);
+                  if (it) (it as any)[field] = value;
+                })
+              }
             />
           ))}
         </AnimatePresence>
 
         <AddRecommendationForm
-          onAdd={(name, description, directions, price, photoUrl, lat, lng) =>
+          onAdd={(name, description, directions, price, photoUrl, lat, lng, facebook, instagram, menuUrl) =>
             update((d) => {
               d[activeTab].items.push({
                 id: Math.random().toString(36).slice(2, 10),
                 name, description, directions, price, photoUrl, lat, lng,
+                facebook, instagram, menuUrl,
                 visited: false, votes: [], comments: [],
               });
             })
