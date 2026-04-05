@@ -46,8 +46,6 @@ const Index = () => {
   const activeRoute = routes[activeTab];
   const totalVisited = routes.reduce((s, r) => s + r.items.filter((i) => i.visited).length, 0);
   const totalItems = routes.reduce((s, r) => s + r.items.length, 0);
-  const isMetro = activeRoute.id === "metro";
-
   return (
     <div className="min-h-screen bg-background">
       <VoteAlert message={voteAlert} onDismiss={() => setVoteAlert(null)} />
