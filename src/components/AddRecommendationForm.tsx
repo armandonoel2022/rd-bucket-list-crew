@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 interface Props {
-  onAdd: (name: string, description: string, directions: string, price?: string, photoUrl?: string, lat?: number, lng?: number) => void;
+  onAdd: (name: string, description: string, directions: string, price?: string, photoUrl?: string, lat?: number, lng?: number, facebook?: string, instagram?: string, menuUrl?: string) => void;
 }
 
 const AddRecommendationForm = ({ onAdd }: Props) => {
@@ -12,6 +12,9 @@ const AddRecommendationForm = ({ onAdd }: Props) => {
   const [photoUrl, setPhotoUrl] = useState("");
   const [lat, setLat] = useState("");
   const [lng, setLng] = useState("");
+  const [facebook, setFacebook] = useState("");
+  const [instagram, setInstagram] = useState("");
+  const [menuUrl, setMenuUrl] = useState("");
   const [open, setOpen] = useState(false);
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -26,9 +29,13 @@ const AddRecommendationForm = ({ onAdd }: Props) => {
         price.trim() || undefined,
         photoUrl.trim() || undefined,
         !isNaN(parsedLat) ? parsedLat : undefined,
-        !isNaN(parsedLng) ? parsedLng : undefined
+        !isNaN(parsedLng) ? parsedLng : undefined,
+        facebook.trim() || undefined,
+        instagram.trim() || undefined,
+        menuUrl.trim() || undefined
       );
       setName(""); setDescription(""); setDirections(""); setPrice(""); setPhotoUrl(""); setLat(""); setLng("");
+      setFacebook(""); setInstagram(""); setMenuUrl("");
       setOpen(false);
     }
   };
@@ -55,6 +62,9 @@ const AddRecommendationForm = ({ onAdd }: Props) => {
         <input value={lat} onChange={(e) => setLat(e.target.value)} placeholder="🌐 Latitud" className={`${inputClass} flex-1`} />
         <input value={lng} onChange={(e) => setLng(e.target.value)} placeholder="🌐 Longitud" className={`${inputClass} flex-1`} />
       </div>
+      <input value={facebook} onChange={(e) => setFacebook(e.target.value)} placeholder="📘 Facebook (URL)" className={inputClass} />
+      <input value={instagram} onChange={(e) => setInstagram(e.target.value)} placeholder="📷 Instagram (URL)" className={inputClass} />
+      <input value={menuUrl} onChange={(e) => setMenuUrl(e.target.value)} placeholder="📋 URL del menú (imagen o PDF)" className={inputClass} />
       <div className="flex gap-2">
         <button type="submit" className="btn-turquoise flex-1">Agregar</button>
         <button type="button" onClick={() => setOpen(false)} className="px-4 py-2 text-sm text-muted-foreground hover:text-foreground transition-colors">

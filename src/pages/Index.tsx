@@ -46,8 +46,6 @@ const Index = () => {
   const activeRoute = routes[activeTab];
   const totalVisited = routes.reduce((s, r) => s + r.items.filter((i) => i.visited).length, 0);
   const totalItems = routes.reduce((s, r) => s + r.items.length, 0);
-  const isMetro = activeRoute.id === "metro";
-
   return (
     <div className="min-h-screen bg-background">
       <VoteAlert message={voteAlert} onDismiss={() => setVoteAlert(null)} />
@@ -127,26 +125,13 @@ const Index = () => {
         </div>
       </div>
 
-      {/* Starting point indicator for non-metro */}
-      {!isMetro && (
-        <div className="max-w-4xl mx-auto px-4 mt-4">
-          <div className="bg-primary/10 border border-primary/20 rounded-lg px-4 py-2 flex items-center gap-2">
-            <span className="text-lg">🏁</span>
-            <p className="text-sm font-body">
-              <span className="font-bold text-primary">Punto de partida:</span>{" "}
-              <span className="text-foreground">Santo Domingo (Zona Metropolitana)</span>
-            </p>
-          </div>
-        </div>
-      )}
-
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
-        {/* Map for non-metro routes */}
-        {!isMetro && <RouteMap route={activeRoute} />}
+        {/* Map */}
+        <RouteMap route={activeRoute} />
 
-        {/* Fuel & rest stops for non-metro */}
-        {!isMetro && <RouteStops fuelStops={activeRoute.fuelStops} restStops={activeRoute.restStops} />}
+        {/* Fuel & rest stops */}
+        {activeRoute.fuelStops.length > 0 && <RouteStops fuelStops={activeRoute.fuelStops} restStops={activeRoute.restStops} />}
 
         <AnimatePresence mode="popLayout">
           {activeRoute.items.map((item) => (
@@ -201,16 +186,23 @@ const Index = () => {
                   if (it) { it.lat = lat; it.lng = lng; }
                 })
               }
+              onUpdateSocial={(field, value) =>
+                update((d) => {
+                  const it = d[activeTab].items.find((x) => x.id === item.id);
+                  if (it) (it as any)[field] = value;
+                })
+              }
             />
           ))}
         </AnimatePresence>
 
         <AddRecommendationForm
-          onAdd={(name, description, directions, price, photoUrl, lat, lng) =>
+          onAdd={(name, description, directions, price, photoUrl, lat, lng, facebook, instagram, menuUrl) =>
             update((d) => {
               d[activeTab].items.push({
                 id: Math.random().toString(36).slice(2, 10),
                 name, description, directions, price, photoUrl, lat, lng,
+                facebook, instagram, menuUrl,
                 visited: false, votes: [], comments: [],
               });
             })

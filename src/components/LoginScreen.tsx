@@ -1,4 +1,5 @@
 import { FRIENDS } from "@/lib/bucketListData";
+import { FRIEND_AVATARS } from "@/lib/friendAvatars";
 import { motion } from "framer-motion";
 import bannerImg from "@/assets/banner-group.jpeg";
 
@@ -32,9 +33,14 @@ const LoginScreen = ({ onLogin }: Props) => {
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.1 }}
               onClick={() => onLogin(name)}
-              className="btn-turquoise text-base py-4 rounded-xl"
+              className="btn-turquoise text-base py-4 rounded-xl flex flex-col items-center gap-2"
             >
-              {name}
+              <img
+                src={FRIEND_AVATARS[name]}
+                alt={name}
+                className="w-16 h-16 rounded-full object-cover border-2 border-white/50 shadow-md"
+              />
+              <span>{name}</span>
             </motion.button>
           ))}
         </div>

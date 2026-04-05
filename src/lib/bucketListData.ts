@@ -10,6 +10,9 @@ export interface Recommendation {
   visited: boolean;
   votes: string[];
   comments: { author: string; text: string }[];
+  facebook?: string;
+  instagram?: string;
+  menuUrl?: string;
 }
 
 export interface FuelStop {
@@ -195,6 +198,85 @@ export const DEFAULT_DATA: Route[] = [
         description: "Playa virgen donde los pescadores venden langosta recién sacada del mar.",
         directions: "Punta Cana, tomar desvío hacia Macao por la carretera principal.",
         lat: 18.7500, lng: -68.4833,
+        visited: false, votes: [], comments: [],
+      },
+    ],
+  },
+  {
+    id: "noroeste",
+    icon: "🐐",
+    name: "Ruta Noroeste (Monte Cristi)",
+    fuelStops: [
+      { id: uid(), name: "Propagas - Santiago salida oeste", brand: "Propagas", lat: 19.4500, lng: -70.7200, notes: "Llenar tanque antes de tomar la carretera a Monte Cristi" },
+      { id: uid(), name: "Shell - Mao", brand: "Shell", lat: 19.5500, lng: -71.0800, notes: "Último punto de combustible confiable antes de Monte Cristi" },
+    ],
+    restStops: [
+      { id: uid(), name: "Parador Navarrete", description: "Comida rápida y snacks en la Duarte rumbo al noroeste.", lat: 19.5800, lng: -70.8700 },
+      { id: uid(), name: "Parador de Guayubín", description: "Descanso en la zona del chivo linero.", lat: 19.6300, lng: -71.3300 },
+    ],
+    items: [
+      {
+        id: uid(),
+        name: "Playa Mi Popa – Kiosco de Doña Eva",
+        description: "Recomendado por William Ramos. Playita oculta con agua cristalina y el famoso kiosco de Doña Eva: pescado frito, langosta, camarones y lambí frescos.",
+        directions: "Monte Cristi, zona costera. Playa Mi Popa, buscar el kiosco de Doña Eva.",
+        lat: 19.8700, lng: -71.6500,
+        visited: false, votes: [], comments: [],
+      },
+      {
+        id: uid(),
+        name: "Restaurante Blue Marlin",
+        description: "Recomendado por William Ramos. Restaurante junto a la marina de Monte Cristi. Risotto de langosta, parrillas de mariscos, ambiente con música en vivo.",
+        directions: "Junto a la marina de Monte Cristi.",
+        lat: 19.8600, lng: -71.6400,
+        visited: false, votes: [], comments: [],
+      },
+      {
+        id: uid(),
+        name: "Piscina Natural Gran Gocier",
+        description: "Recomendado por William Ramos. Piscina natural en los cayos de Monte Cristi. Agua cristalina, exfoliante natural. Se llega en catamarán desde la marina.",
+        directions: "Tour en catamarán desde el Club Náutico de Monte Cristi. Incluye manglares, piscina natural e Isla Cabra.",
+        lat: 19.9200, lng: -71.7800,
+        visited: false, votes: [], comments: [],
+      },
+      {
+        id: uid(),
+        name: "El Morro – Parque Nacional",
+        description: "Recomendado por William Ramos. Vistas espectaculares desde la cima del Morro. Sendero de ~40 min con columpios en la cima. Playa debajo.",
+        directions: "Parque Nacional El Morro, Monte Cristi. Sendero desde la entrada principal.",
+        lat: 19.8900, lng: -71.6600,
+        visited: false, votes: [], comments: [],
+      },
+      {
+        id: uid(),
+        name: "Restaurante Mongastor – Pizza de Chivo",
+        description: "Recomendado por William Ramos. Todo de chivo: pizza de chivo horneado, yaroa de chivo (chibirica), paletilla, albóndigas, salpicón y ceviche de chivo. Pueblo de Guayubín.",
+        directions: "Guayubín, Monte Cristi. Restaurante Mongastor en el centro del pueblo.",
+        lat: 19.6300, lng: -71.3300,
+        visited: false, votes: [], comments: [],
+      },
+      {
+        id: uid(),
+        name: "Super Café – Casa Azul",
+        description: "Recomendado por William Ramos. Café, paletas artesanales, cerveza artesanal. Casa con fachada victoriana típica de Monte Cristi. Patio con columpios para fotos.",
+        directions: "Centro de Monte Cristi, zona colonial.",
+        lat: 19.8500, lng: -71.6500,
+        visited: false, votes: [], comments: [],
+      },
+      {
+        id: uid(),
+        name: "Isla Cabra y Faro Antiguo",
+        description: "Recomendado por William Ramos. Islote con salinas y faro antiguo. Parte del tour en catamarán por los cayos de Monte Cristi.",
+        directions: "Acceso en bote desde la marina de Monte Cristi.",
+        lat: 19.9100, lng: -71.6800,
+        visited: false, votes: [], comments: [],
+      },
+      {
+        id: uid(),
+        name: "Hotel Wyndham Garden Monte Cristi",
+        description: "Recomendado por William Ramos. Hotel moderno con piscina, gimnasio y bar. Buen lugar para hospedarse después de la playa.",
+        directions: "Monte Cristi centro.",
+        lat: 19.8500, lng: -71.6400,
         visited: false, votes: [], comments: [],
       },
     ],

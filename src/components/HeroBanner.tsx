@@ -17,7 +17,7 @@ const HeroBanner = () => {
           Juan Carlos, Matilde, Ruth & Armando
         </p>
         <p className="text-card/70 text-sm font-body mt-1">
-          Próximo viaje: Septiembre 2025
+          Próximo viaje: Septiembre 2026
         </p>
       </div>
     </div>
