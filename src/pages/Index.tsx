@@ -131,7 +131,14 @@ const Index = () => {
         <RouteMap route={activeRoute} />
 
         {/* Fuel & rest stops */}
-        {activeRoute.fuelStops.length > 0 && <RouteStops fuelStops={activeRoute.fuelStops} restStops={activeRoute.restStops} />}
+        <RouteStops
+          fuelStops={activeRoute.fuelStops}
+          restStops={activeRoute.restStops}
+          onDeleteFuel={(id) => update((d) => { d[activeTab].fuelStops = d[activeTab].fuelStops.filter((f) => f.id !== id); })}
+          onDeleteRest={(id) => update((d) => { d[activeTab].restStops = d[activeTab].restStops.filter((r) => r.id !== id); })}
+          onAddFuel={(stop) => update((d) => { d[activeTab].fuelStops.push(stop); })}
+          onAddRest={(stop) => update((d) => { d[activeTab].restStops.push(stop); })}
+        />
 
         <AnimatePresence mode="popLayout">
           {activeRoute.items.map((item) => (
