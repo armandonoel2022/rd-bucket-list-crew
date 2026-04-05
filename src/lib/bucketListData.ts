@@ -10,6 +10,9 @@ export interface Recommendation {
   visited: boolean;
   votes: string[];
   comments: { author: string; text: string }[];
+  facebook?: string;
+  instagram?: string;
+  menuUrl?: string;
 }
 
 export interface FuelStop {
