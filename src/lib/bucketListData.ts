@@ -291,12 +291,20 @@ export function loadRoutes(): Route[] {
     try {
       const data = JSON.parse(saved) as Route[];
       // Migrate old data: add fuelStops/restStops if missing
-      return data.map((r, i) => ({
+      const migrated = data.map((r, i) => ({
         ...r,
         fuelStops: r.fuelStops || DEFAULT_DATA[i]?.fuelStops || [],
         restStops: r.restStops || DEFAULT_DATA[i]?.restStops || [],
         items: r.items.map((item) => ({ ...item, lat: item.lat, lng: item.lng })),
       }));
+      // Add any new routes from DEFAULT_DATA that don't exist in saved data
+      const savedIds = new Set(migrated.map((r) => r.id));
+      DEFAULT_DATA.forEach((def) => {
+        if (!savedIds.has(def.id)) {
+          migrated.push(def);
+        }
+      });
+      return migrated;
     } catch {
       return DEFAULT_DATA;
     }
