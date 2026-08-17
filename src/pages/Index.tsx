@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from "react";
+import { useState, useCallback, useEffect, useRef } from "react";
 import { AnimatePresence } from "framer-motion";
 import HeroBanner from "@/components/HeroBanner";
 import RecommendationCard from "@/components/RecommendationCard";
@@ -8,7 +8,8 @@ import VoteAlert from "@/components/VoteAlert";
 import RouteMap from "@/components/RouteMap";
 import RouteStops from "@/components/RouteStops";
 import Dashboard from "@/components/Dashboard";
-import { Route, loadRoutes, saveRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
+import { Route, loadRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
+import { fetchSharedRoutes, saveSharedRoutes, subscribeSharedRoutes } from "@/lib/cloudSync";
 
 const Index = () => {
   const [routes, setRoutes] = useState<Route[]>(loadRoutes);
@@ -16,10 +17,45 @@ const Index = () => {
   const [user, setUser] = useState<string | null>(getCurrentUser);
   const [voteAlert, setVoteAlert] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [syncing, setSyncing] = useState(true);
 
+  // Ignore saves triggered by data that just arrived from the cloud
+  const remoteJson = useRef<string | null>(null);
+  const ready = useRef(false);
+
+  // Initial load from the cloud + realtime subscription
   useEffect(() => {
-    saveRoutes(routes);
-  }, [routes]);
+    let mounted = true;
+    fetchSharedRoutes().then((cloudRoutes) => {
+      if (!mounted) return;
+      remoteJson.current = JSON.stringify(cloudRoutes);
+      setRoutes(cloudRoutes);
+      setSyncing(false);
+      ready.current = true;
+    });
+
+    const unsubscribe = subscribeSharedRoutes((cloudRoutes) => {
+      remoteJson.current = JSON.stringify(cloudRoutes);
+      setRoutes(cloudRoutes);
+    });
+
+    return () => {
+      mounted = false;
+      unsubscribe();
+    };
+  }, []);
+
+  // Push local changes to the cloud (skipping echoes of remote updates)
+  useEffect(() => {
+    if (!ready.current) return;
+    const json = JSON.stringify(routes);
+    if (json === remoteJson.current) return;
+    const t = setTimeout(() => {
+      remoteJson.current = json;
+      saveSharedRoutes(routes, user);
+    }, 400);
+    return () => clearTimeout(t);
+  }, [routes, user]);
 
   const handleLogin = (name: string) => {
     setCurrentUser(name);
@@ -46,6 +82,7 @@ const Index = () => {
   const activeRoute = routes[activeTab];
   const totalVisited = routes.reduce((s, r) => s + r.items.filter((i) => i.visited).length, 0);
   const totalItems = routes.reduce((s, r) => s + r.items.length, 0);
+
   return (
     <div className="min-h-screen bg-background">
       <VoteAlert message={voteAlert} onDismiss={() => setVoteAlert(null)} />
@@ -57,7 +94,11 @@ const Index = () => {
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-body">
               Hola, <span className="font-bold text-primary">{user}</span> 👋
+              <span className="ml-2 text-xs text-muted-foreground">
+                {syncing ? "☁️ sincronizando..." : "☁️ compartido en la nube"}
+              </span>
             </p>
+
             <div className="flex gap-3 items-center">
               <button
                 onClick={() => setShowDashboard(!showDashboard)}

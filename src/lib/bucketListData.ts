@@ -285,26 +285,29 @@ export const DEFAULT_DATA: Route[] = [
 
 const STORAGE_KEY = "rdx4-bucket-list";
 
+/** Merges saved data with DEFAULT_DATA so new routes/stops appear without losing user data. */
+export function mergeWithDefaults(data: Route[]): Route[] {
+  const migrated = data.map((r, i) => ({
+    ...r,
+    fuelStops: r.fuelStops || DEFAULT_DATA[i]?.fuelStops || [],
+    restStops: r.restStops || DEFAULT_DATA[i]?.restStops || [],
+    items: (r.items || []).map((item) => ({ ...item, lat: item.lat, lng: item.lng })),
+  }));
+  const savedIds = new Set(migrated.map((r) => r.id));
+  DEFAULT_DATA.forEach((def) => {
+    if (!savedIds.has(def.id)) {
+      migrated.push(JSON.parse(JSON.stringify(def)));
+    }
+  });
+  return migrated;
+}
+
+/** Local cache only (offline fallback). The source of truth is the cloud. */
 export function loadRoutes(): Route[] {
   const saved = localStorage.getItem(STORAGE_KEY);
   if (saved) {
     try {
-      const data = JSON.parse(saved) as Route[];
-      // Migrate old data: add fuelStops/restStops if missing
-      const migrated = data.map((r, i) => ({
-        ...r,
-        fuelStops: r.fuelStops || DEFAULT_DATA[i]?.fuelStops || [],
-        restStops: r.restStops || DEFAULT_DATA[i]?.restStops || [],
-        items: r.items.map((item) => ({ ...item, lat: item.lat, lng: item.lng })),
-      }));
-      // Add any new routes from DEFAULT_DATA that don't exist in saved data
-      const savedIds = new Set(migrated.map((r) => r.id));
-      DEFAULT_DATA.forEach((def) => {
-        if (!savedIds.has(def.id)) {
-          migrated.push(JSON.parse(JSON.stringify(def)));
-        }
-      });
-      return migrated;
+      return mergeWithDefaults(JSON.parse(saved) as Route[]);
     } catch {
       return DEFAULT_DATA;
     }
@@ -315,6 +318,7 @@ export function loadRoutes(): Route[] {
 export function saveRoutes(routes: Route[]) {
   localStorage.setItem(STORAGE_KEY, JSON.stringify(routes));
 }
+
 
 const USER_KEY = "rdx4-current-user";
 
