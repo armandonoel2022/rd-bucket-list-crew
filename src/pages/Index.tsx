@@ -94,7 +94,11 @@ const Index = () => {
           <div className="flex items-center justify-between mb-3">
             <p className="text-sm font-body">
               Hola, <span className="font-bold text-primary">{user}</span> 👋
+              <span className="ml-2 text-xs text-muted-foreground">
+                {syncing ? "☁️ sincronizando..." : "☁️ compartido en la nube"}
+              </span>
             </p>
+
             <div className="flex gap-3 items-center">
               <button
                 onClick={() => setShowDashboard(!showDashboard)}
