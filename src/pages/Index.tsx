@@ -206,7 +206,7 @@ const Index = () => {
                     it.votes = it.votes.filter((v) => v !== friend);
                   } else {
                     it.votes.push(friend);
-                    setVoteAlert(`${user} votó por "${item.name}" 🎉`);
+                    setVoteAlert(`${friend} votó por "${item.name}" 🎉`);
                   }
                 })
               }
