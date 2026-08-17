@@ -1,7 +1,7 @@
 import { FRIENDS } from "@/lib/bucketListData";
 import { FRIEND_AVATARS } from "@/lib/friendAvatars";
 import { motion } from "framer-motion";
-import bannerImg from "@/assets/explorando-los-cuatro.png.asset.json";
+import bannerImg from "@/assets/explorando-los-cuatro.png";
 
 interface Props {
   onLogin: (name: string) => void;
@@ -11,7 +11,7 @@ const LoginScreen = ({ onLogin }: Props) => {
   return (
     <div className="min-h-screen bg-background flex flex-col items-center justify-center p-4">
       <div className="relative w-full max-w-md overflow-hidden rounded-2xl shadow-2xl">
-        <img src={bannerImg.url} alt="Juan Carlos, Matilde, Ruth y Armando con las camisetas Explorando Quisqueya" className="w-full h-48 object-cover" />
+        <img src={bannerImg} alt="Juan Carlos, Matilde, Ruth y Armando con las camisetas Explorando Quisqueya" className="w-full h-48 object-cover" />
         <div className="absolute inset-0 h-48 bg-gradient-to-t from-foreground/60 to-transparent" />
         <div className="absolute top-4 left-0 right-0 text-center">
           <h1 className="font-display text-2xl font-bold text-white drop-shadow-lg">
