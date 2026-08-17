@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import bannerImage from "@/assets/explorando-los-cuatro.png.asset.json";
+import bannerImage from "@/assets/explorando-los-cuatro.png";
 
 const HeroBanner = () => {
   return (
     <div className="relative w-full h-[340px] md:h-[420px] overflow-hidden">
       <img
-        src={bannerImage.url}
+        src={bannerImage}
         alt="Juan Carlos, Matilde, Ruth y Armando con las camisetas Explorando Quisqueya"
         className="absolute inset-0 w-full h-full object-cover object-top"
       />
