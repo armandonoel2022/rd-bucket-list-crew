@@ -168,6 +168,9 @@ const Index = () => {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+        {/* Route hero: image + phrase */}
+        <RouteHero route={activeRoute} />
+
         {/* Map */}
         <RouteMap route={activeRoute} />
 
