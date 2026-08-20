@@ -2,6 +2,7 @@ import { FRIENDS } from "@/lib/bucketListData";
 import { FRIEND_AVATARS } from "@/lib/friendAvatars";
 import { motion } from "framer-motion";
 import bannerImg from "@/assets/explorando-los-cuatro.png";
+import logo from "@/assets/logo-rdx4.png";
 
 interface Props {
   onLogin: (name: string) => void;
