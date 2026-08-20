@@ -6,6 +6,7 @@ import AddRecommendationForm from "@/components/AddRecommendationForm";
 import LoginScreen from "@/components/LoginScreen";
 import VoteAlert from "@/components/VoteAlert";
 import RouteMap from "@/components/RouteMap";
+import RouteHero from "@/components/RouteHero";
 import RouteStops from "@/components/RouteStops";
 import Dashboard from "@/components/Dashboard";
 import { Route, loadRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
