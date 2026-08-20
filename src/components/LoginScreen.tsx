@@ -14,11 +14,18 @@ const LoginScreen = ({ onLogin }: Props) => {
       <div className="relative w-full max-w-md overflow-hidden rounded-2xl shadow-2xl">
         <img src={bannerImg} alt="Juan Carlos, Matilde, Ruth y Armando con las camisetas Explorando Quisqueya" className="w-full h-48 object-cover" />
         <div className="absolute inset-0 h-48 bg-gradient-to-t from-foreground/60 to-transparent" />
-        <div className="absolute top-4 left-0 right-0 text-center">
-          <h1 className="font-display text-2xl font-bold text-white drop-shadow-lg">
-            RD x 4
-          </h1>
-          <p className="text-white/80 text-sm font-body">Bucket List Viajero</p>
+        <div className="absolute inset-x-0 top-3 flex flex-col items-center text-center">
+          <motion.img
+            src={logo}
+            alt="Logo RD x 4"
+            initial={{ opacity: 0, scale: 0.7 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ type: "spring", stiffness: 90, damping: 12 }}
+            className="w-20 h-20 drop-shadow-2xl"
+          />
+          <p className="text-white/90 text-[11px] font-body uppercase tracking-[0.2em] mt-1 drop-shadow">
+            Un destino, mil historias, cuatro amigos
+          </p>
         </div>
       </div>
 
