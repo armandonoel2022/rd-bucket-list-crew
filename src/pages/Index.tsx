@@ -6,6 +6,7 @@ import AddRecommendationForm from "@/components/AddRecommendationForm";
 import LoginScreen from "@/components/LoginScreen";
 import VoteAlert from "@/components/VoteAlert";
 import RouteMap from "@/components/RouteMap";
+import RouteHero from "@/components/RouteHero";
 import RouteStops from "@/components/RouteStops";
 import Dashboard from "@/components/Dashboard";
 import { Route, loadRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
@@ -168,6 +169,9 @@ const Index = () => {
 
       {/* Content */}
       <div className="max-w-4xl mx-auto px-4 py-6 space-y-4">
+        {/* Route hero: image + phrase */}
+        <RouteHero route={activeRoute} />
+
         {/* Map */}
         <RouteMap route={activeRoute} />
 
