@@ -301,13 +301,56 @@ export const DEFAULT_DATA: Route[] = [
 
 const STORAGE_KEY = "rdx4-bucket-list";
 
+/** Guesses a category from the place name/description so old data is organized automatically. */
+export function inferCategory(item: Recommendation): PlaceCategory {
+  const t = `${item.name} ${item.description}`.toLowerCase();
+  if (/hotel|resort|hosped|wyndham|villa/.test(t)) return "hotel";
+  if (/restaurant|comedor|kiosco|marisco|pizza|mofongo|parrilla|cena|comida/.test(t)) return "restaurante";
+  if (/caf[eé]|postre|helado|paleta|dulce|cerveza/.test(t)) return "cafe";
+  if (/playa|piscina natural|cayo|isla|lago/.test(t)) return "playa";
+  if (/parque|cascada|charcos|sendero|museo|zona colonial|tour|morro|faro/.test(t)) return "atraccion";
+  return "otro";
+}
+
+/** Average interest (0–5) across the friends who already rated the place. */
+export function averageRating(item: Recommendation): number {
+  const values = FRIENDS.map((f) => item.ratings?.[f]).filter((v): v is number => typeof v === "number");
+  if (!values.length) return 0;
+  return values.reduce((s, n) => s + n, 0) / values.length;
+}
+
+/** Sum of all stars given to a place (used to rank routes). */
+export function totalStars(item: Recommendation): number {
+  return FRIENDS.reduce((s, f) => s + (item.ratings?.[f] ?? 0), 0);
+}
+
+export function routeScore(route: Route) {
+  const stars = route.items.reduce((s, i) => s + totalStars(i), 0);
+  const maxStars = route.items.length * FRIENDS.length * 5;
+  const rated = route.items.filter((i) => totalStars(i) > 0).length;
+  const avg = route.items.length
+    ? route.items.reduce((s, i) => s + averageRating(i), 0) / route.items.length
+    : 0;
+  return { stars, maxStars, rated, avg, percent: maxStars ? (stars / maxStars) * 100 : 0 };
+}
+
 /** Merges saved data with DEFAULT_DATA so new routes/stops appear without losing user data. */
 export function mergeWithDefaults(data: Route[]): Route[] {
   const migrated = data.map((r, i) => ({
     ...r,
     fuelStops: r.fuelStops || DEFAULT_DATA[i]?.fuelStops || [],
     restStops: r.restStops || DEFAULT_DATA[i]?.restStops || [],
-    items: (r.items || []).map((item) => ({ ...item, lat: item.lat, lng: item.lng })),
+    items: (r.items || []).map((item) => {
+      const votes = item.votes || [];
+      // Legacy votes become 5 stars so nothing is lost when moving to the star system.
+      const ratings = item.ratings ?? Object.fromEntries(votes.map((v) => [v, 5]));
+      return {
+        ...item,
+        votes,
+        ratings,
+        category: item.category ?? inferCategory(item),
+      };
+    }),
   }));
   const savedIds = new Set(migrated.map((r) => r.id));
   DEFAULT_DATA.forEach((def) => {
