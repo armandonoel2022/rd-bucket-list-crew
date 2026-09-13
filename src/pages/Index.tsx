@@ -9,7 +9,8 @@ import RouteMap from "@/components/RouteMap";
 import RouteHero from "@/components/RouteHero";
 import RouteStops from "@/components/RouteStops";
 import Dashboard from "@/components/Dashboard";
-import { Route, loadRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
+import TripPlan from "@/components/TripPlan";
+import { Route, FRIENDS, loadRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
 import { fetchSharedRoutes, saveSharedRoutes, subscribeSharedRoutes } from "@/lib/cloudSync";
 
 const Index = () => {
@@ -202,16 +203,30 @@ const Index = () => {
                   d[activeTab].items = d[activeTab].items.filter((x) => x.id !== item.id);
                 })
               }
-              onVote={(friend) =>
+              onRate={(friend, stars) =>
                 update((d) => {
                   const it = d[activeTab].items.find((x) => x.id === item.id);
                   if (!it) return;
-                  if (it.votes.includes(friend)) {
-                    it.votes = it.votes.filter((v) => v !== friend);
-                  } else {
-                    it.votes.push(friend);
-                    setVoteAlert(`${friend} votó por "${item.name}" 🎉`);
-                  }
+                  it.ratings = { ...(it.ratings || {}), [friend]: stars };
+                  // Keep the legacy "votes" list in sync: interés > 0 = quiere ir
+                  it.votes = FRIENDS.filter((f) => (it.ratings?.[f] ?? 0) > 0);
+                  setVoteAlert(
+                    stars === 0
+                      ? `${friend} quitó su interés en "${item.name}"`
+                      : `${friend} le dio ${stars} ⭐ a "${item.name}"`
+                  );
+                })
+              }
+              onUpdateCategory={(category) =>
+                update((d) => {
+                  const it = d[activeTab].items.find((x) => x.id === item.id);
+                  if (it) it.category = category;
+                })
+              }
+              onToggleBreakfast={() =>
+                update((d) => {
+                  const it = d[activeTab].items.find((x) => x.id === item.id);
+                  if (it) it.breakfastIncluded = !it.breakfastIncluded;
                 })
               }
               onAddComment={(author, text) =>
@@ -255,7 +270,7 @@ const Index = () => {
                 id: Math.random().toString(36).slice(2, 10),
                 name, description, directions, price, photoUrl, lat, lng,
                 facebook, instagram, menuUrl,
-                visited: false, votes: [], comments: [],
+                visited: false, votes: [], ratings: {}, category: "otro", comments: [],
               });
             })
           }

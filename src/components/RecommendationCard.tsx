@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Recommendation, FRIENDS } from "@/lib/bucketListData";
+import { Recommendation, FRIENDS, PlaceCategory, CATEGORY_LABELS, averageRating, totalStars } from "@/lib/bucketListData";
 import { FRIEND_AVATARS } from "@/lib/friendAvatars";
 import { motion } from "framer-motion";
+import StarRating from "@/components/StarRating";
 
 function openGoogleMaps(lat: number, lng: number) {
   window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, "_blank");
@@ -16,15 +17,17 @@ interface Props {
   currentUser: string;
   onToggleVisited: () => void;
   onDelete: () => void;
-  onVote: (friend: string) => void;
+  onRate: (friend: string, stars: number) => void;
   onAddComment: (author: string, text: string) => void;
   onUpdatePrice: (price: string) => void;
   onUpdatePhoto: (url: string) => void;
   onUpdateLocation: (lat: number, lng: number) => void;
   onUpdateSocial: (field: "facebook" | "instagram" | "menuUrl", value: string) => void;
+  onUpdateCategory: (category: PlaceCategory) => void;
+  onToggleBreakfast: () => void;
 }
 
-const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVote, onAddComment, onUpdatePrice, onUpdatePhoto, onUpdateLocation, onUpdateSocial }: Props) => {
+const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onRate, onAddComment, onUpdatePrice, onUpdatePhoto, onUpdateLocation, onUpdateSocial, onUpdateCategory, onToggleBreakfast }: Props) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editingPrice, setEditingPrice] = useState(false);
@@ -219,6 +222,30 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
           {socialField("Facebook", "📘", "facebook", "https://facebook.com/...")}
           {socialField("Instagram", "📷", "instagram", "https://instagram.com/...")}
           {socialField("Menú", "📋", "menuUrl", "URL del menú (imagen o PDF)")}
+
+          {/* Category */}
+          <div className="mt-1 flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-muted-foreground">🏷️ Tipo:</span>
+            <select
+              value={item.category ?? "otro"}
+              onChange={(e) => onUpdateCategory(e.target.value as PlaceCategory)}
+              className="bg-card border border-border rounded-lg px-2 py-1 text-xs font-body"
+            >
+              {(Object.keys(CATEGORY_LABELS) as PlaceCategory[]).map((c) => (
+                <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+              ))}
+            </select>
+            {item.category === "hotel" && (
+              <button
+                onClick={onToggleBreakfast}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-colors ${
+                  item.breakfastIncluded ? "bg-accent text-accent-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {item.breakfastIncluded ? "🥐 Desayuno incluido" : "Desayuno no incluido"}
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
           <button onClick={onToggleVisited} className="btn-turquoise text-xs !px-3 !py-1.5">
@@ -230,22 +257,35 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVo
         </div>
       </div>
 
-      {/* Votes with avatars */}
+      {/* Star ratings per friend */}
       <div className="mt-4">
-        <p className="text-xs font-semibold text-muted-foreground mb-2">
-          🗳️ Votar para ir ({item.votes.length}/{FRIENDS.length}):
-        </p>
-        <div className="flex flex-wrap gap-2">
-          {FRIENDS.map((f) => (
-            <button
-              key={f}
-              onClick={() => onVote(f)}
-              className={`vote-chip ${item.votes.includes(f) ? "voted" : ""} flex items-center gap-1.5`}
-            >
-              <img src={FRIEND_AVATARS[f]} alt={f} className="w-5 h-5 rounded-full object-cover" />
-              {item.votes.includes(f) ? "✓" : "+"} {f}
-            </button>
-          ))}
+        <div className="flex items-center justify-between mb-2">
+          <p className="text-xs font-semibold text-muted-foreground">
+            ⭐ Interés del grupo (0 a 5 estrellas):
+          </p>
+          <div className="flex items-center gap-2">
+            <StarRating value={Math.round(averageRating(item))} size="sm" readOnly />
+            <span className="text-xs font-bold text-secondary">
+              {averageRating(item).toFixed(1)} · {totalStars(item)} ★
+            </span>
+          </div>
+        </div>
+        <div className="grid sm:grid-cols-2 gap-2">
+          {FRIENDS.map((f) => {
+            const stars = item.ratings?.[f] ?? 0;
+            return (
+              <div
+                key={f}
+                className={`flex items-center gap-2 rounded-full px-3 py-1.5 border ${
+                  stars > 0 ? "border-secondary/40 bg-secondary/10" : "border-border bg-card"
+                } ${f === currentUser ? "ring-1 ring-primary/40" : ""}`}
+              >
+                <img src={FRIEND_AVATARS[f]} alt={f} className="w-6 h-6 rounded-full object-cover shrink-0" />
+                <span className="text-xs font-semibold flex-1 min-w-0 truncate">{f}</span>
+                <StarRating value={stars} size="sm" onChange={(n) => onRate(f, n)} />
+              </div>
+            );
+          })}
         </div>
       </div>
 
