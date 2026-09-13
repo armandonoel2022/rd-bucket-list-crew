@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Recommendation, FRIENDS } from "@/lib/bucketListData";
+import { Recommendation, FRIENDS, PlaceCategory, CATEGORY_LABELS, averageRating, totalStars } from "@/lib/bucketListData";
 import { FRIEND_AVATARS } from "@/lib/friendAvatars";
 import { motion } from "framer-motion";
+import StarRating from "@/components/StarRating";
 
 function openGoogleMaps(lat: number, lng: number) {
   window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, "_blank");
@@ -16,15 +17,17 @@ interface Props {
   currentUser: string;
   onToggleVisited: () => void;
   onDelete: () => void;
-  onVote: (friend: string) => void;
+  onRate: (friend: string, stars: number) => void;
   onAddComment: (author: string, text: string) => void;
   onUpdatePrice: (price: string) => void;
   onUpdatePhoto: (url: string) => void;
   onUpdateLocation: (lat: number, lng: number) => void;
   onUpdateSocial: (field: "facebook" | "instagram" | "menuUrl", value: string) => void;
+  onUpdateCategory: (category: PlaceCategory) => void;
+  onToggleBreakfast: () => void;
 }
 
-const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onVote, onAddComment, onUpdatePrice, onUpdatePhoto, onUpdateLocation, onUpdateSocial }: Props) => {
+const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onRate, onAddComment, onUpdatePrice, onUpdatePhoto, onUpdateLocation, onUpdateSocial, onUpdateCategory, onToggleBreakfast }: Props) => {
   const [showComments, setShowComments] = useState(false);
   const [commentText, setCommentText] = useState("");
   const [editingPrice, setEditingPrice] = useState(false);
