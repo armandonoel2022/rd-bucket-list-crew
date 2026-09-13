@@ -368,10 +368,10 @@ export function loadRoutes(): Route[] {
     try {
       return mergeWithDefaults(JSON.parse(saved) as Route[]);
     } catch {
-      return DEFAULT_DATA;
+      return mergeWithDefaults(DEFAULT_DATA);
     }
   }
-  return DEFAULT_DATA;
+  return mergeWithDefaults(DEFAULT_DATA);
 }
 
 export function saveRoutes(routes: Route[]) {
