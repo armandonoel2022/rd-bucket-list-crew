@@ -222,6 +222,30 @@ const RecommendationCard = ({ item, currentUser, onToggleVisited, onDelete, onRa
           {socialField("Facebook", "📘", "facebook", "https://facebook.com/...")}
           {socialField("Instagram", "📷", "instagram", "https://instagram.com/...")}
           {socialField("Menú", "📋", "menuUrl", "URL del menú (imagen o PDF)")}
+
+          {/* Category */}
+          <div className="mt-1 flex items-center gap-2 flex-wrap">
+            <span className="text-xs font-semibold text-muted-foreground">🏷️ Tipo:</span>
+            <select
+              value={item.category ?? "otro"}
+              onChange={(e) => onUpdateCategory(e.target.value as PlaceCategory)}
+              className="bg-card border border-border rounded-lg px-2 py-1 text-xs font-body"
+            >
+              {(Object.keys(CATEGORY_LABELS) as PlaceCategory[]).map((c) => (
+                <option key={c} value={c}>{CATEGORY_LABELS[c]}</option>
+              ))}
+            </select>
+            {item.category === "hotel" && (
+              <button
+                onClick={onToggleBreakfast}
+                className={`text-xs font-bold px-3 py-1 rounded-full transition-colors ${
+                  item.breakfastIncluded ? "bg-accent text-accent-foreground" : "bg-card border border-border text-muted-foreground hover:text-foreground"
+                }`}
+              >
+                {item.breakfastIncluded ? "🥐 Desayuno incluido" : "Desayuno no incluido"}
+              </button>
+            )}
+          </div>
         </div>
         <div className="flex flex-col gap-2 shrink-0">
           <button onClick={onToggleVisited} className="btn-turquoise text-xs !px-3 !py-1.5">
