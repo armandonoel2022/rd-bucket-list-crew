@@ -270,7 +270,7 @@ const Index = () => {
                 id: Math.random().toString(36).slice(2, 10),
                 name, description, directions, price, photoUrl, lat, lng,
                 facebook, instagram, menuUrl,
-                visited: false, votes: [], comments: [],
+                visited: false, votes: [], ratings: {}, category: "otro", comments: [],
               });
             })
           }
