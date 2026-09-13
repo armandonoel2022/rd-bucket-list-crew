@@ -1,3 +1,14 @@
+export type PlaceCategory = "restaurante" | "hotel" | "atraccion" | "playa" | "cafe" | "otro";
+
+export const CATEGORY_LABELS: Record<PlaceCategory, string> = {
+  restaurante: "🍽️ Restaurante",
+  hotel: "🏨 Hotel",
+  atraccion: "🏞️ Atracción",
+  playa: "🏖️ Playa",
+  cafe: "☕ Café / Postres",
+  otro: "📌 Otro",
+};
+
 export interface Recommendation {
   id: string;
   name: string;
@@ -9,6 +20,11 @@ export interface Recommendation {
   lng?: number;
   visited: boolean;
   votes: string[];
+  /** Interés de 0 a 5 estrellas por persona */
+  ratings?: Record<string, number>;
+  category?: PlaceCategory;
+  /** Solo para hoteles: desayuno incluido en la reservación */
+  breakfastIncluded?: boolean;
   comments: { author: string; text: string }[];
   facebook?: string;
   instagram?: string;
