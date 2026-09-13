@@ -9,7 +9,8 @@ import RouteMap from "@/components/RouteMap";
 import RouteHero from "@/components/RouteHero";
 import RouteStops from "@/components/RouteStops";
 import Dashboard from "@/components/Dashboard";
-import { Route, loadRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
+import TripPlan from "@/components/TripPlan";
+import { Route, FRIENDS, loadRoutes, getCurrentUser, setCurrentUser, clearCurrentUser } from "@/lib/bucketListData";
 import { fetchSharedRoutes, saveSharedRoutes, subscribeSharedRoutes } from "@/lib/cloudSync";
 
 const Index = () => {
