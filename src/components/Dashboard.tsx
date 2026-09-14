@@ -1,16 +1,17 @@
-import { Route, FRIENDS } from "@/lib/bucketListData";
+import { Route, FRIENDS, averageRating, totalStars } from "@/lib/bucketListData";
+import StarRating from "@/components/StarRating";
 
 interface Props {
   routes: Route[];
 }
 
 const Dashboard = ({ routes }: Props) => {
-  // --- Ranking by votes ---
+  // --- Ranking by stars ---
   const allItems = routes.flatMap((r) =>
     r.items.map((item) => ({ ...item, routeName: r.name, routeIcon: r.icon }))
   );
-  const sortedByVotes = [...allItems].sort((a, b) => b.votes.length - a.votes.length);
-  const top5 = sortedByVotes.slice(0, 5);
+  const sortedByVotes = [...allItems].sort((a, b) => totalStars(b) - totalStars(a));
+  const top5 = sortedByVotes.filter((i) => totalStars(i) > 0).slice(0, 5);
 
   // --- Cost per route ---
   const routeCosts = routes.map((r) => {
