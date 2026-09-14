@@ -19,6 +19,7 @@ const Index = () => {
   const [user, setUser] = useState<string | null>(getCurrentUser);
   const [voteAlert, setVoteAlert] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showPlan, setShowPlan] = useState(false);
   const [syncing, setSyncing] = useState(true);
 
   // Ignore saves triggered by data that just arrived from the cloud
