@@ -66,7 +66,7 @@ const Dashboard = ({ routes }: Props) => {
       {/* Unanimous picks */}
       {unanimous.length > 0 && (
         <div className="card-caribbean p-4 border-l-4 border-l-accent">
-          <h3 className="font-display font-bold text-sm text-foreground mb-2">🎯 Unanimidad – ¡Todos quieren ir!</h3>
+          <h3 className="font-display font-bold text-sm text-foreground mb-2">🎯 Unanimidad – ¡Todos le dieron 4 ⭐ o más!</h3>
           <div className="flex flex-wrap gap-2">
             {unanimous.map((item) => (
               <span key={item.id} className="badge-visited text-xs">
