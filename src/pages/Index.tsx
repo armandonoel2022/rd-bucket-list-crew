@@ -104,7 +104,13 @@ const Index = () => {
 
             <div className="flex gap-3 items-center">
               <button
-                onClick={() => setShowDashboard(!showDashboard)}
+                onClick={() => { setShowPlan(!showPlan); setShowDashboard(false); }}
+                className={`text-xs font-bold transition-colors ${showPlan ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                🧭 Plan del viaje
+              </button>
+              <button
+                onClick={() => { setShowDashboard(!showDashboard); setShowPlan(false); }}
                 className={`text-xs font-bold transition-colors ${showDashboard ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
                 📊 Dashboard
