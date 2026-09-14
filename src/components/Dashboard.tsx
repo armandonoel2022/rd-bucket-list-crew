@@ -113,12 +113,15 @@ const Dashboard = ({ routes }: Props) => {
         <h3 className="font-display font-bold text-sm text-foreground mb-3">👥 Actividad por Viajero</h3>
         <div className="grid grid-cols-2 gap-3">
           {FRIENDS.map((f) => {
-            const voteCount = allItems.filter((i) => i.votes.includes(f)).length;
+            const rated = allItems.filter((i) => (i.ratings?.[f] ?? 0) > 0);
+            const starsGiven = allItems.reduce((s, i) => s + (i.ratings?.[f] ?? 0), 0);
             const commentCount = allItems.reduce((s, i) => s + i.comments.filter((c) => c.author === f).length, 0);
             return (
               <div key={f} className="bg-muted rounded-lg p-3 text-center">
                 <p className="font-bold text-sm text-foreground">{f}</p>
-                <p className="text-xs text-muted-foreground mt-1">🗳️ {voteCount} votos · 💬 {commentCount} comentarios</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  ⭐ {starsGiven} estrellas en {rated.length} lugares · 💬 {commentCount} comentarios
+                </p>
               </div>
             );
           })}
