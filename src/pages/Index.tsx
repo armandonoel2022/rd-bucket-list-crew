@@ -152,6 +152,21 @@ const Index = () => {
         </div>
       </div>
 
+      {/* Trip plan */}
+      {showPlan && (
+        <div className="max-w-4xl mx-auto px-4 mt-6">
+          <TripPlan
+            routes={routes}
+            onToggleBreakfast={(routeId, itemId) =>
+              update((d) => {
+                const it = d.find((r) => r.id === routeId)?.items.find((x) => x.id === itemId);
+                if (it) it.breakfastIncluded = !it.breakfastIncluded;
+              })
+            }
+          />
+        </div>
+      )}
+
       {/* Dashboard */}
       {showDashboard && (
         <div className="max-w-4xl mx-auto px-4 mt-6">
