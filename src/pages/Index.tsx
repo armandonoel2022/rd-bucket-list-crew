@@ -19,6 +19,7 @@ const Index = () => {
   const [user, setUser] = useState<string | null>(getCurrentUser);
   const [voteAlert, setVoteAlert] = useState<string | null>(null);
   const [showDashboard, setShowDashboard] = useState(false);
+  const [showPlan, setShowPlan] = useState(false);
   const [syncing, setSyncing] = useState(true);
 
   // Ignore saves triggered by data that just arrived from the cloud
@@ -103,7 +104,13 @@ const Index = () => {
 
             <div className="flex gap-3 items-center">
               <button
-                onClick={() => setShowDashboard(!showDashboard)}
+                onClick={() => { setShowPlan(!showPlan); setShowDashboard(false); }}
+                className={`text-xs font-bold transition-colors ${showPlan ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
+              >
+                🧭 Plan del viaje
+              </button>
+              <button
+                onClick={() => { setShowDashboard(!showDashboard); setShowPlan(false); }}
                 className={`text-xs font-bold transition-colors ${showDashboard ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
               >
                 📊 Dashboard
@@ -144,6 +151,21 @@ const Index = () => {
           </div>
         </div>
       </div>
+
+      {/* Trip plan */}
+      {showPlan && (
+        <div className="max-w-4xl mx-auto px-4 mt-6">
+          <TripPlan
+            routes={routes}
+            onToggleBreakfast={(routeId, itemId) =>
+              update((d) => {
+                const it = d.find((r) => r.id === routeId)?.items.find((x) => x.id === itemId);
+                if (it) it.breakfastIncluded = !it.breakfastIncluded;
+              })
+            }
+          />
+        </div>
+      )}
 
       {/* Dashboard */}
       {showDashboard && (

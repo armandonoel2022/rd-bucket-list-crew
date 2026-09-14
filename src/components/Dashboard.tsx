@@ -1,16 +1,17 @@
-import { Route, FRIENDS } from "@/lib/bucketListData";
+import { Route, FRIENDS, averageRating, totalStars } from "@/lib/bucketListData";
+import StarRating from "@/components/StarRating";
 
 interface Props {
   routes: Route[];
 }
 
 const Dashboard = ({ routes }: Props) => {
-  // --- Ranking by votes ---
+  // --- Ranking by stars ---
   const allItems = routes.flatMap((r) =>
     r.items.map((item) => ({ ...item, routeName: r.name, routeIcon: r.icon }))
   );
-  const sortedByVotes = [...allItems].sort((a, b) => b.votes.length - a.votes.length);
-  const top5 = sortedByVotes.slice(0, 5);
+  const sortedByVotes = [...allItems].sort((a, b) => totalStars(b) - totalStars(a));
+  const top5 = sortedByVotes.filter((i) => totalStars(i) > 0).slice(0, 5);
 
   // --- Cost per route ---
   const routeCosts = routes.map((r) => {
@@ -27,18 +28,18 @@ const Dashboard = ({ routes }: Props) => {
   });
   const cheapest = [...routeCosts].filter((c) => c.total > 0).sort((a, b) => a.total - b.total)[0];
 
-  // --- Vote consensus ---
-  const unanimous = allItems.filter((i) => i.votes.length === FRIENDS.length);
+  // --- Places everybody rated 4+ stars ---
+  const unanimous = allItems.filter((i) => FRIENDS.every((f) => (i.ratings?.[f] ?? 0) >= 4));
 
   return (
     <div className="space-y-4">
       <h2 className="font-display font-bold text-xl text-foreground">📊 Dashboard Comparativo</h2>
 
-      {/* Top 5 by votes */}
+      {/* Top 5 by stars */}
       <div className="card-caribbean p-4">
-        <h3 className="font-display font-bold text-sm text-foreground mb-3">🏆 Top 5 – Más Votados</h3>
+        <h3 className="font-display font-bold text-sm text-foreground mb-3">🏆 Top 5 – Mejor calificados</h3>
         {top5.length === 0 ? (
-          <p className="text-sm text-muted-foreground">Aún no hay votos. ¡Voten por sus lugares favoritos!</p>
+          <p className="text-sm text-muted-foreground">Aún no hay calificaciones. ¡Denle estrellas a sus lugares favoritos!</p>
         ) : (
           <div className="space-y-2">
             {top5.map((item, i) => (
@@ -51,14 +52,10 @@ const Dashboard = ({ routes }: Props) => {
                   <p className="text-xs text-muted-foreground">{item.routeIcon} {item.routeName}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <span className="text-sm font-bold text-primary">{item.votes.length}/{FRIENDS.length}</span>
-                  <p className="text-[10px] text-muted-foreground">votos</p>
-                </div>
-                <div className="w-16 h-2 bg-muted rounded-full overflow-hidden shrink-0">
-                  <div
-                    className="h-full bg-primary rounded-full transition-all"
-                    style={{ width: `${(item.votes.length / FRIENDS.length) * 100}%` }}
-                  />
+                  <StarRating value={Math.round(averageRating(item))} size="sm" readOnly />
+                  <p className="text-[10px] text-muted-foreground">
+                    {averageRating(item).toFixed(1)} · {totalStars(item)} ★
+                  </p>
                 </div>
               </div>
             ))}
@@ -69,7 +66,7 @@ const Dashboard = ({ routes }: Props) => {
       {/* Unanimous picks */}
       {unanimous.length > 0 && (
         <div className="card-caribbean p-4 border-l-4 border-l-accent">
-          <h3 className="font-display font-bold text-sm text-foreground mb-2">🎯 Unanimidad – ¡Todos quieren ir!</h3>
+          <h3 className="font-display font-bold text-sm text-foreground mb-2">🎯 Unanimidad – ¡Todos le dieron 4 ⭐ o más!</h3>
           <div className="flex flex-wrap gap-2">
             {unanimous.map((item) => (
               <span key={item.id} className="badge-visited text-xs">
@@ -116,12 +113,15 @@ const Dashboard = ({ routes }: Props) => {
         <h3 className="font-display font-bold text-sm text-foreground mb-3">👥 Actividad por Viajero</h3>
         <div className="grid grid-cols-2 gap-3">
           {FRIENDS.map((f) => {
-            const voteCount = allItems.filter((i) => i.votes.includes(f)).length;
+            const rated = allItems.filter((i) => (i.ratings?.[f] ?? 0) > 0);
+            const starsGiven = allItems.reduce((s, i) => s + (i.ratings?.[f] ?? 0), 0);
             const commentCount = allItems.reduce((s, i) => s + i.comments.filter((c) => c.author === f).length, 0);
             return (
               <div key={f} className="bg-muted rounded-lg p-3 text-center">
                 <p className="font-bold text-sm text-foreground">{f}</p>
-                <p className="text-xs text-muted-foreground mt-1">🗳️ {voteCount} votos · 💬 {commentCount} comentarios</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  ⭐ {starsGiven} estrellas en {rated.length} lugares · 💬 {commentCount} comentarios
+                </p>
               </div>
             );
           })}
